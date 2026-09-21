@@ -9,6 +9,7 @@ import { useStore } from '../hooks/useStore';
 import { serviceSchema, categorySchema, businessInfoSchema, type ServiceFormData, type CategoryFormData } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
+import * as supabaseServices from '../lib/supabase-services';
 
 type AdminTab = 'appointments' | 'services' | 'categories' | 'business';
 
@@ -78,7 +79,6 @@ export function AdminPage() {
 
   return (
     <div className="pb-4">
-      {/* Header */}
       <div className="px-5 pt-6 pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Admin</h1>
@@ -92,7 +92,6 @@ export function AdminPage() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="px-5 mb-4">
         <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
           {tabs.map(tab => (
@@ -112,7 +111,6 @@ export function AdminPage() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="px-5">
         <AnimatePresence mode="wait">
           {activeTab === 'appointments' && <AppointmentsTab key="apt" />}
@@ -137,15 +135,22 @@ export function AdminPage() {
   );
 }
 
-/* ============ APPOINTMENTS TAB ============ */
-
 function AppointmentsTab() {
-  const { state, dispatch, addToast } = useStore();
+  const { state, addToast } = useStore();
   const [filter, setFilter] = useState<string>('all');
 
   const filtered = filter === 'all'
     ? state.appointments
     : state.appointments.filter(a => a.status === filter);
+
+  const handleStatusChange = async (id: string, status: 'confirmed' | 'cancelled') => {
+    const success = await supabaseServices.updateAppointmentStatus(id, status);
+    if (success) {
+      addToast(`Cita ${status === 'confirmed' ? 'confirmada' : 'cancelada'}`, 'success');
+    } else {
+      addToast('Error al actualizar la cita', 'error');
+    }
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
@@ -195,13 +200,13 @@ function AppointmentsTab() {
               {apt.status === 'pending' && (
                 <div className="flex gap-2 mt-3">
                   <button
-                    onClick={() => { dispatch({ type: 'UPDATE_APPOINTMENT_STATUS', id: apt.id, status: 'confirmed' }); addToast('Cita confirmada', 'success'); }}
+                    onClick={() => handleStatusChange(apt.id, 'confirmed')}
                     className="flex-1 py-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-medium rounded-lg hover:bg-green-100 transition-colors"
                   >
                     Confirmar
                   </button>
                   <button
-                    onClick={() => { dispatch({ type: 'UPDATE_APPOINTMENT_STATUS', id: apt.id, status: 'cancelled' }); addToast('Cita cancelada', 'info'); }}
+                    onClick={() => handleStatusChange(apt.id, 'cancelled')}
                     className="flex-1 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg hover:bg-red-100 transition-colors"
                   >
                     Cancelar
@@ -216,13 +221,21 @@ function AppointmentsTab() {
   );
 }
 
-/* ============ SERVICES TAB ============ */
-
 function ServicesTab({ editingService, setEditingService }: { editingService: string | null; setEditingService: (id: string | null) => void }) {
   const { state, dispatch, addToast } = useStore();
 
   const getCategoryEmoji = (categoryId: string) => {
     return state.categories.find(c => c.id === categoryId)?.emoji || '✨';
+  };
+
+  const handleDelete = async (id: string) => {
+    const success = await supabaseServices.deleteService(id);
+    if (success) {
+      dispatch({ type: 'DELETE_SERVICE', id });
+      addToast('Servicio eliminado', 'info');
+    } else {
+      addToast('Error al eliminar el servicio', 'error');
+    }
   };
 
   return (
@@ -260,7 +273,7 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
               <Edit3 size={14} />
             </button>
             <button
-              onClick={() => { dispatch({ type: 'DELETE_SERVICE', id: service.id }); addToast('Servicio eliminado', 'info'); }}
+              onClick={() => handleDelete(service.id)}
               className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 transition-colors"
               aria-label="Eliminar servicio"
             >
@@ -296,18 +309,28 @@ function ServiceForm({ service, onClose }: { service: import('../types').Service
     },
   });
 
-  const onSubmit = (data: ServiceFormData) => {
+  const onSubmit = async (data: ServiceFormData) => {
     if (service) {
-      dispatch({ type: 'UPDATE_SERVICE', service: { ...service, ...data } });
-      addToast('Servicio actualizado', 'success');
+      const updated = { ...service, ...data };
+      const success = await supabaseServices.updateService(updated);
+      if (success) {
+        dispatch({ type: 'UPDATE_SERVICE', service: updated });
+        addToast('Servicio actualizado', 'success');
+        onClose();
+      } else {
+        addToast('Error al actualizar el servicio', 'error');
+      }
     } else {
-      dispatch({
-        type: 'ADD_SERVICE',
-        service: { ...data, id: uuidv4(), image_url: null, created_at: new Date().toISOString() },
-      });
-      addToast('Servicio creado', 'success');
+      const newService = { ...data, id: uuidv4(), image_url: null, created_at: new Date().toISOString() };
+      const created = await supabaseServices.createService(newService);
+      if (created) {
+        dispatch({ type: 'ADD_SERVICE', service: created });
+        addToast('Servicio creado', 'success');
+        onClose();
+      } else {
+        addToast('Error al crear el servicio', 'error');
+      }
     }
-    onClose();
   };
 
   return (
@@ -352,13 +375,26 @@ function ServiceForm({ service, onClose }: { service: import('../types').Service
   );
 }
 
-/* ============ CATEGORIES TAB ============ */
-
 function CategoriesTab({ editingCategory, setEditingCategory }: { editingCategory: string | null; setEditingCategory: (id: string | null) => void }) {
   const { state, dispatch, addToast } = useStore();
 
   const getServiceCount = (categoryId: string) => {
     return state.services.filter(s => s.category_id === categoryId).length;
+  };
+
+  const handleDelete = async (id: string) => {
+    const count = getServiceCount(id);
+    if (count > 0) {
+      addToast(`No puedes eliminar: tiene ${count} servicio(s) asignado(s)`, 'error');
+      return;
+    }
+    const success = await supabaseServices.deleteCategory(id);
+    if (success) {
+      dispatch({ type: 'DELETE_CATEGORY', id });
+      addToast('Categoría eliminada', 'info');
+    } else {
+      addToast('Error al eliminar la categoría', 'error');
+    }
   };
 
   return (
@@ -402,15 +438,7 @@ function CategoriesTab({ editingCategory, setEditingCategory }: { editingCategor
               <Edit3 size={14} />
             </button>
             <button
-              onClick={() => {
-                const count = getServiceCount(category.id);
-                if (count > 0) {
-                  addToast(`No puedes eliminar: tiene ${count} servicio(s) asignado(s)`, 'error');
-                  return;
-                }
-                dispatch({ type: 'DELETE_CATEGORY', id: category.id });
-                addToast('Categoría eliminada', 'info');
-              }}
+              onClick={() => handleDelete(category.id)}
               className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 transition-colors"
               aria-label="Eliminar categoría"
             >
@@ -445,18 +473,28 @@ function CategoryForm({ category, onClose }: { category: import('../types').Cate
     },
   });
 
-  const onSubmit = (data: CategoryFormData) => {
+  const onSubmit = async (data: CategoryFormData) => {
     if (category) {
-      dispatch({ type: 'UPDATE_CATEGORY', category: { ...category, ...data } });
-      addToast('Categoría actualizada', 'success');
+      const updated = { ...category, ...data };
+      const success = await supabaseServices.updateCategory(updated);
+      if (success) {
+        dispatch({ type: 'UPDATE_CATEGORY', category: updated });
+        addToast('Categoría actualizada', 'success');
+        onClose();
+      } else {
+        addToast('Error al actualizar la categoría', 'error');
+      }
     } else {
-      dispatch({
-        type: 'ADD_CATEGORY',
-        category: { ...data, id: uuidv4() },
-      });
-      addToast('Categoría creada', 'success');
+      const newCategory = { ...data, id: uuidv4() };
+      const created = await supabaseServices.createCategory(newCategory);
+      if (created) {
+        dispatch({ type: 'ADD_CATEGORY', category: created });
+        addToast('Categoría creada', 'success');
+        onClose();
+      } else {
+        addToast('Error al crear la categoría', 'error');
+      }
     }
-    onClose();
   };
 
   return (
@@ -518,12 +556,9 @@ function CategoryForm({ category, onClose }: { category: import('../types').Cate
   );
 }
 
-/* ============ BUSINESS TAB ============ */
-
 function BusinessTab() {
   const { state, dispatch, addToast } = useStore();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<any>({
     resolver: zodResolver(businessInfoSchema) as any,
     defaultValues: state.businessInfo,
@@ -531,9 +566,15 @@ function BusinessTab() {
   const { register } = form;
   const handleSubmit = form.handleSubmit as (cb: (data: Record<string, string>) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
 
-  const onSubmit = (data: Record<string, string>) => {
-    dispatch({ type: 'UPDATE_BUSINESS_INFO', info: { ...state.businessInfo, ...data } });
-    addToast('Información actualizada', 'success');
+  const onSubmit = async (data: Record<string, string>) => {
+    const updated = { ...state.businessInfo, ...data };
+    const success = await supabaseServices.updateBusinessInfo(updated);
+    if (success) {
+      dispatch({ type: 'UPDATE_BUSINESS_INFO', info: updated });
+      addToast('Información actualizada', 'success');
+    } else {
+      addToast('Error al actualizar la información', 'error');
+    }
   };
 
   return (

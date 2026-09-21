@@ -60,27 +60,6 @@ export function ContactPage() {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="flex items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800"
-        >
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-            <MessageCircle size={18} className="text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">WhatsApp</p>
-            <a
-              href={`https://wa.me/${businessInfo.whatsapp}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-violet-600 dark:text-violet-400 hover:underline"
-            >
-              +{businessInfo.whatsapp}
-            </a>
-          </div>
-        </motion.div>
       </div>
 
       {/* Social */}

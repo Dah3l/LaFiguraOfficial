@@ -103,22 +103,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-5 mt-8">
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-700 dark:to-emerald-800 rounded-2xl p-6 text-center">
-          <h3 className="text-white font-bold text-lg mb-2">¿Lista/o para tu cambio?</h3>
-          <p className="text-white/80 text-sm mb-4">Reserva ahora por WhatsApp y luce tu mejor versión</p>
-          <a
-            href={`https://wa.me/${businessInfo.whatsapp}?text=${encodeURIComponent('¡Hola! Quisiera reservar una cita en La Figura.')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-white text-green-700 font-semibold rounded-full text-sm shadow-lg active:scale-95 transition-transform min-h-[44px]"
-          >
-            <CalendarCheck size={16} />
-            Agendar por WhatsApp
-          </a>
-        </div>
-      </section>
     </div>
   );
 }

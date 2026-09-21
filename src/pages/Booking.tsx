@@ -117,22 +117,6 @@ export function BookingPage() {
         )}
       </div>
 
-      {/* Bottom CTA */}
-      <div className="px-5 mt-8">
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-700 dark:to-emerald-800 rounded-2xl p-5 text-center">
-          <p className="text-white font-semibold text-sm mb-1">¿Prefieres hablar con nosotros?</p>
-          <p className="text-white/70 text-xs mb-3">Te ayudamos a elegir el servicio ideal</p>
-          <a
-            href={buildGeneralWhatsAppLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-white text-green-700 font-semibold rounded-full text-sm shadow-lg active:scale-95 transition-transform min-h-[44px]"
-          >
-            <MessageCircle size={16} />
-            Chatear por WhatsApp
-          </a>
-        </div>
-      </div>
     </div>
   );
 }

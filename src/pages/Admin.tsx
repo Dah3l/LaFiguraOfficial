@@ -133,7 +133,7 @@ export function AdminPage() {
 }
 
 function ServicesTab({ editingService, setEditingService }: { editingService: string | null; setEditingService: (id: string | null) => void }) {
-  const { state, dispatch, addToast } = useStore();
+  const { state, dispatch, addToast, loadData } = useStore();
 
   const getCategoryEmoji = (categoryId: string) => {
     return state.categories.find(c => c.id === categoryId)?.emoji || '✨';
@@ -163,13 +163,16 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
     const updatedService = { ...service, order: swapService.order };
     const updatedSwap = { ...swapService, order: service.order };
 
-    await Promise.all([
-      supabaseServices.updateService(updatedService),
-      supabaseServices.updateService(updatedSwap),
-    ]);
+    const success1 = await supabaseServices.updateService(updatedService);
+    const success2 = await supabaseServices.updateService(updatedSwap);
 
-    dispatch({ type: 'UPDATE_SERVICE', service: updatedService });
-    dispatch({ type: 'UPDATE_SERVICE', service: updatedSwap });
+    if (success1 && success2) {
+      // Recargar servicios desde Supabase
+      await loadData();
+      addToast('Orden actualizado', 'success');
+    } else {
+      addToast('Error al actualizar el orden', 'error');
+    }
   };
 
   return (

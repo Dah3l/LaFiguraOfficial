@@ -3,7 +3,6 @@ import { BottomNav } from './components/BottomNav';
 import { ToastContainer } from './components/ToastContainer';
 import { HomePage } from './pages/Home';
 import { ServicesPage } from './pages/Services';
-import { BookingPage } from './pages/Booking';
 import { AdminPage } from './pages/Admin';
 import { ContactPage } from './pages/Contact';
 import { useTheme } from './hooks/useTheme';
@@ -16,7 +15,6 @@ function AppContent() {
     switch (state.currentPage) {
       case 'home': return <HomePage />;
       case 'services': return <ServicesPage />;
-      case 'booking': return <BookingPage />;
       case 'admin': return <AdminPage />;
       case 'contact': return <ContactPage />;
       default: return <HomePage />;

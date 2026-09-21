@@ -43,15 +43,13 @@ VITE_SUPABASE_ANON_KEY=tu-anon-key
 
 Esto crea:
 - `business_info` - Info del negocio
+- `categories` - Categorías de servicios (editables)
 - `services` - Catálogo de servicios
 - `appointments` - Citas/reservas
-- `schedules` - Horarios de atención
-- `blocked_slots` - Bloqueos de horarios
 
 Con RLS (Row Level Security) configurado:
-- Lectura pública: servicios activos, info del negocio, horarios
+- Lectura pública: categorías activas, servicios activos, info del negocio
 - Escritura admin: CRUD completo con rol `admin`
-- Usuarios pueden crear citas
 
 ## 🏃 Desarrollo
 
@@ -86,7 +84,6 @@ npx wrangler pages deploy dist --project-name=la-figura
 
 La app es instalable como PWA:
 - `manifest.json` configurado
-- Service Worker (generado por Vite PWA plugin si se agrega)
 - Iconos SVG incluidos
 
 ## 🎨 Características
@@ -96,20 +93,29 @@ La app es instalable como PWA:
 - Bottom tab bar tipo app nativa
 - Áreas táctiles ≥44px
 - Inputs ≥16px (evita zoom en iOS)
-- Pickers nativos para fecha/hora
 
 ### Páginas
-1. **Inicio** - Hero, servicios destacados, testimonios, CTA
-2. **Servicios** - Listado con filtros por categoría y búsqueda
-3. **Reservar** - Formulario con validación + resumen en vivo + WhatsApp
-4. **Admin** - Panel protegido con CRUD de servicios, gestión de citas
+1. **Inicio** - Hero, servicios destacados, testimonios, CTA WhatsApp
+2. **Servicios** - Listado con filtros por categoría dinámica y búsqueda
+3. **Reservar** - Selector de servicios + botón WhatsApp preformateado
+4. **Admin** - Panel protegido con CRUD de categorías, servicios, citas e info del negocio
 5. **Contacto** - Mapa, horarios, redes sociales, formulario
+
+### Reservas por WhatsApp
+Las reservas se gestionan **exclusivamente por WhatsApp**. Cada servicio tiene un botón que abre WhatsApp con un mensaje preformateado. No hay formulario interno de reservas.
+
+### Categorías Editables
+Las categorías de servicios son completamente editables desde el panel de admin:
+- Crear, editar y eliminar categorías
+- Personalizar nombre, emoji, slug y descripción
+- Orden de aparición configurable
+- Activar/desactivar categorías
 
 ### Admin (demo: contraseña `admin123`)
 - Editar info del negocio
-- CRUD de servicios
+- CRUD de categorías (nombre, emoji, orden)
+- CRUD de servicios (vinculados a categorías)
 - Gestión de citas con filtros y estados
-- Configuración de horarios
 
 ### Accesibilidad
 - Modo claro/oscuro (auto-detecta preferencia del sistema)
@@ -145,9 +151,9 @@ src/
 │   └── ToastContainer.tsx # Toast notifications
 └── pages/
     ├── Home.tsx         # Landing page
-    ├── Services.tsx     # Service catalog
-    ├── Booking.tsx      # Booking form
-    ├── Admin.tsx        # Admin panel
+    ├── Services.tsx     # Service catalog (categorías dinámicas)
+    ├── Booking.tsx      # WhatsApp booking selector
+    ├── Admin.tsx        # Admin panel (categorías + servicios + citas + negocio)
     └── Contact.tsx      # Contact page
 
 supabase/

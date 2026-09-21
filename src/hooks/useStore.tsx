@@ -1,10 +1,10 @@
 import { createContext, useContext, useReducer, useCallback, type ReactNode } from 'react';
-import type { Service, Appointment, BusinessInfo, Schedule, Toast, Page } from '../types';
+import type { Service, Appointment, BusinessInfo, Category, Toast, Page } from '../types';
 import {
   defaultServices,
+  defaultCategories,
   defaultAppointments,
   defaultBusinessInfo,
-  defaultSchedule,
   getFromStorage,
   saveToStorage,
   STORAGE_KEYS,
@@ -12,9 +12,9 @@ import {
 
 interface State {
   services: Service[];
+  categories: Category[];
   appointments: Appointment[];
   businessInfo: BusinessInfo;
-  schedule: Schedule[];
   currentPage: Page;
   toasts: Toast[];
   isAdmin: boolean;
@@ -27,8 +27,10 @@ type Action =
   | { type: 'ADD_SERVICE'; service: Service }
   | { type: 'UPDATE_SERVICE'; service: Service }
   | { type: 'DELETE_SERVICE'; id: string }
+  | { type: 'ADD_CATEGORY'; category: Category }
+  | { type: 'UPDATE_CATEGORY'; category: Category }
+  | { type: 'DELETE_CATEGORY'; id: string }
   | { type: 'UPDATE_BUSINESS_INFO'; info: BusinessInfo }
-  | { type: 'UPDATE_SCHEDULE'; schedule: Schedule[] }
   | { type: 'ADD_TOAST'; toast: Toast }
   | { type: 'REMOVE_TOAST'; id: string }
   | { type: 'SET_ADMIN'; isAdmin: boolean };
@@ -64,13 +66,24 @@ function reducer(state: State, action: Action): State {
       saveToStorage(STORAGE_KEYS.services, updated);
       return { ...state, services: updated };
     }
+    case 'ADD_CATEGORY': {
+      const updated = [...state.categories, action.category];
+      saveToStorage(STORAGE_KEYS.categories, updated);
+      return { ...state, categories: updated };
+    }
+    case 'UPDATE_CATEGORY': {
+      const updated = state.categories.map(c => c.id === action.category.id ? action.category : c);
+      saveToStorage(STORAGE_KEYS.categories, updated);
+      return { ...state, categories: updated };
+    }
+    case 'DELETE_CATEGORY': {
+      const updated = state.categories.filter(c => c.id !== action.id);
+      saveToStorage(STORAGE_KEYS.categories, updated);
+      return { ...state, categories: updated };
+    }
     case 'UPDATE_BUSINESS_INFO': {
       saveToStorage(STORAGE_KEYS.businessInfo, action.info);
       return { ...state, businessInfo: action.info };
-    }
-    case 'UPDATE_SCHEDULE': {
-      saveToStorage(STORAGE_KEYS.schedule, action.schedule);
-      return { ...state, schedule: action.schedule };
     }
     case 'ADD_TOAST':
       return { ...state, toasts: [...state.toasts, action.toast] };
@@ -85,9 +98,9 @@ function reducer(state: State, action: Action): State {
 
 const initialState: State = {
   services: getFromStorage(STORAGE_KEYS.services, defaultServices),
+  categories: getFromStorage(STORAGE_KEYS.categories, defaultCategories),
   appointments: getFromStorage(STORAGE_KEYS.appointments, defaultAppointments),
   businessInfo: getFromStorage(STORAGE_KEYS.businessInfo, defaultBusinessInfo),
-  schedule: getFromStorage(STORAGE_KEYS.schedule, defaultSchedule),
   currentPage: 'home',
   toasts: [],
   isAdmin: false,

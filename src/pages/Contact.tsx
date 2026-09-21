@@ -1,4 +1,4 @@
-import { MapPin, Clock, Phone, Mail, Instagram, Facebook, Send } from 'lucide-react';
+import { MapPin, Clock, Phone, Instagram, Facebook, Send, MessageCircle } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { motion } from 'framer-motion';
 
@@ -69,16 +69,21 @@ export function ContactPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
           className="flex items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-            <Mail size={18} className="text-blue-600 dark:text-blue-400" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+            <MessageCircle size={18} className="text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">Email</p>
-            <a href={`mailto:${businessInfo.email}`} className="text-xs text-violet-600 dark:text-violet-400 hover:underline">
-              {businessInfo.email}
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">WhatsApp</p>
+            <a
+              href={`https://wa.me/${businessInfo.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-violet-600 dark:text-violet-400 hover:underline"
+            >
+              +{businessInfo.whatsapp}
             </a>
           </div>
         </motion.div>
@@ -120,8 +125,8 @@ export function ContactPage() {
             className="w-full px-4 py-3.5 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none text-base"
           />
           <input
-            type="email"
-            placeholder="Tu email"
+            type="tel"
+            placeholder="Tu teléfono"
             required
             className="w-full px-4 py-3.5 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none text-base"
           />

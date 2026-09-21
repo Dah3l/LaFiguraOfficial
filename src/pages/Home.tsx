@@ -1,4 +1,4 @@
-import { CalendarCheck, Star, Clock, Sparkles, ChevronRight } from 'lucide-react';
+import { CalendarCheck, Star, Clock, Sparkles, ChevronRight, MessageCircle } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { motion } from 'framer-motion';
 
@@ -10,8 +10,12 @@ const testimonials = [
 
 export function HomePage() {
   const { state, navigate } = useStore();
-  const { businessInfo, services } = state;
+  const { businessInfo, services, categories } = state;
   const featuredServices = services.filter(s => s.active).slice(0, 3);
+
+  const getCategoryEmoji = (categoryId: string) => {
+    return categories.find(c => c.id === categoryId)?.emoji || '✨';
+  };
 
   return (
     <div className="pb-4">
@@ -37,13 +41,15 @@ export function HomePage() {
             <p className="text-white/80 text-sm sm:text-base max-w-sm mx-auto mb-6">
               {businessInfo.description}
             </p>
-            <button
-              onClick={() => navigate('booking')}
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-violet-700 font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 min-h-[48px]"
+            <a
+              href={`https://wa.me/${businessInfo.whatsapp}?text=${encodeURIComponent('¡Hola! Quisiera reservar una cita en La Figura.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 min-h-[48px]"
             >
-              <CalendarCheck size={18} />
-              Reservar Cita
-            </button>
+              <MessageCircle size={18} />
+              Reservar por WhatsApp
+            </a>
           </motion.div>
         </div>
       </section>
@@ -87,9 +93,7 @@ export function HomePage() {
               className="flex items-center gap-4 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-violet-200 dark:hover:border-violet-800 transition-colors"
             >
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/50 dark:to-purple-900/50 flex items-center justify-center shrink-0">
-                <span className="text-2xl">
-                  {service.category === 'barberia' ? '💈' : service.category === 'peluqueria' ? '💇' : '✨'}
-                </span>
+                <span className="text-2xl">{getCategoryEmoji(service.category_id)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">{service.name}</h3>
@@ -128,16 +132,18 @@ export function HomePage() {
 
       {/* CTA */}
       <section className="px-5 mt-8">
-        <div className="bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-800 dark:to-fuchsia-800 rounded-2xl p-6 text-center">
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-700 dark:to-emerald-800 rounded-2xl p-6 text-center">
           <h3 className="text-white font-bold text-lg mb-2">¿Lista/o para tu cambio?</h3>
-          <p className="text-white/80 text-sm mb-4">Reserva ahora y luce tu mejor versión</p>
-          <button
-            onClick={() => navigate('booking')}
-            className="inline-flex items-center gap-2 px-5 py-3 bg-white text-violet-700 font-semibold rounded-full text-sm shadow-lg active:scale-95 transition-transform min-h-[44px]"
+          <p className="text-white/80 text-sm mb-4">Reserva ahora por WhatsApp y luce tu mejor versión</p>
+          <a
+            href={`https://wa.me/${businessInfo.whatsapp}?text=${encodeURIComponent('¡Hola! Quisiera reservar una cita en La Figura.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-white text-green-700 font-semibold rounded-full text-sm shadow-lg active:scale-95 transition-transform min-h-[44px]"
           >
             <CalendarCheck size={16} />
-            Agendar Cita
-          </button>
+            Agendar por WhatsApp
+          </a>
         </div>
       </section>
     </div>

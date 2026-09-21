@@ -1,26 +1,30 @@
 import { useState } from 'react';
-import { Clock, DollarSign, Search } from 'lucide-react';
+import { Clock, DollarSign, Search, MessageCircle } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const categories = [
-  { id: 'all', label: 'Todos', emoji: '✨' },
-  { id: 'barberia', label: 'Barbería', emoji: '💈' },
-  { id: 'peluqueria', label: 'Peluquería', emoji: '💇' },
-  { id: 'estetica', label: 'Estética', emoji: '🧖' },
-];
-
 export function ServicesPage() {
-  const { state, navigate } = useStore();
+  const { state } = useStore();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const activeCategories = state.categories.filter(c => c.active).sort((a, b) => a.order - b.order);
+
   const filteredServices = state.services.filter(s => {
     if (!s.active) return false;
-    if (activeCategory !== 'all' && s.category !== activeCategory) return false;
+    if (activeCategory !== 'all' && s.category_id !== activeCategory) return false;
     if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   });
+
+  const getCategoryEmoji = (categoryId: string) => {
+    return state.categories.find(c => c.id === categoryId)?.emoji || '✨';
+  };
+
+  const buildWhatsAppLink = (serviceName: string) => {
+    const msg = `¡Hola! Me interesa reservar el servicio *${serviceName}* en La Figura. ¿Tienen disponibilidad?`;
+    return `https://wa.me/${state.businessInfo.whatsapp}?text=${encodeURIComponent(msg)}`;
+  };
 
   return (
     <div className="pb-4">
@@ -28,7 +32,7 @@ export function ServicesPage() {
       <div className="px-5 pt-6 pb-4">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Nuestros Servicios</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Elige tu servicio favorito y reserva online
+          Elige tu servicio y reserva por WhatsApp
         </p>
       </div>
 
@@ -50,7 +54,18 @@ export function ServicesPage() {
       {/* Category Filter */}
       <div className="px-5 mb-4">
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {categories.map(cat => (
+          <button
+            onClick={() => setActiveCategory('all')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all min-h-[40px] ${
+              activeCategory === 'all'
+                ? 'bg-violet-600 text-white shadow-md'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            <span>✨</span>
+            Todos
+          </button>
+          {activeCategories.map(cat => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
@@ -61,7 +76,7 @@ export function ServicesPage() {
               }`}
             >
               <span>{cat.emoji}</span>
-              {cat.label}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -93,9 +108,7 @@ export function ServicesPage() {
                 >
                   <div className="flex gap-4 p-4">
                     <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/50 dark:to-purple-900/50 flex items-center justify-center shrink-0">
-                      <span className="text-3xl">
-                        {service.category === 'barberia' ? '💈' : service.category === 'peluqueria' ? '💇' : '✨'}
-                      </span>
+                      <span className="text-3xl">{getCategoryEmoji(service.category_id)}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 dark:text-white">{service.name}</h3>
@@ -112,12 +125,15 @@ export function ServicesPage() {
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => navigate('booking')}
-                    className="w-full py-3 bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 text-sm font-semibold hover:bg-violet-100 dark:hover:bg-violet-950/50 transition-colors border-t border-gray-50 dark:border-gray-800"
+                  <a
+                    href={buildWhatsAppLink(service.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 text-sm font-semibold hover:bg-green-100 dark:hover:bg-green-950/50 transition-colors border-t border-gray-50 dark:border-gray-800 min-h-[44px]"
                   >
-                    Reservar este servicio →
-                  </button>
+                    <MessageCircle size={14} />
+                    Reservar por WhatsApp
+                  </a>
                 </motion.div>
               ))}
             </div>

@@ -1,4 +1,4 @@
-import { Home, Scissors, CalendarCheck, Shield, Phone, Sun, Moon } from 'lucide-react';
+import { Home, Scissors, MessageCircle, Shield, Phone, Sun, Moon } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { useTheme } from '../hooks/useTheme';
 import type { Page } from '../types';
@@ -6,7 +6,7 @@ import type { Page } from '../types';
 const navItems: { page: Page; icon: typeof Home; label: string }[] = [
   { page: 'home', icon: Home, label: 'Inicio' },
   { page: 'services', icon: Scissors, label: 'Servicios' },
-  { page: 'booking', icon: CalendarCheck, label: 'Reservar' },
+  { page: 'booking', icon: MessageCircle, label: 'Reservar' },
   { page: 'admin', icon: Shield, label: 'Admin' },
   { page: 'contact', icon: Phone, label: 'Contacto' },
 ];

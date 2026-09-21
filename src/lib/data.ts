@@ -1,6 +1,12 @@
-import type { Service, BusinessInfo, Appointment, Schedule } from '../types';
+import type { Service, BusinessInfo, Appointment, Category } from '../types';
 
 // ============ Mock Data (Demo Mode) ============
+
+export const defaultCategories: Category[] = [
+  { id: 'cat-1', name: 'Barbería', slug: 'barberia', emoji: '💈', description: 'Cortes, barba y estilos masculinos', active: true, order: 0 },
+  { id: 'cat-2', name: 'Peluquería', slug: 'peluqueria', emoji: '💇', description: 'Cortes, tintes y tratamientos capilares', active: true, order: 1 },
+  { id: 'cat-3', name: 'Estética', slug: 'estetica', emoji: '✨', description: 'Facial, manicure y cuidado personal', active: true, order: 2 },
+];
 
 export const defaultBusinessInfo: BusinessInfo = {
   id: '1',
@@ -8,7 +14,6 @@ export const defaultBusinessInfo: BusinessInfo = {
   address: 'Alamar, La Habana, Cuba',
   phone: '+53 5000 0000',
   whatsapp: '5350000000',
-  email: 'lafigura@email.com',
   description: 'Tu espacio de belleza y estilo. Peluquería, barbería y estética profesional con los mejores productos y las últimas tendencias.',
   schedule: 'Lunes a Sábado: 9:00 AM - 7:00 PM',
   logo_url: null,
@@ -24,7 +29,7 @@ export const defaultServices: Service[] = [
     description: 'Corte de cabello tradicional con tijera y máquina. Incluye lavado y peinado final.',
     price: 300,
     duration: 30,
-    category: 'barberia',
+    category_id: 'cat-1',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
@@ -35,7 +40,7 @@ export const defaultServices: Service[] = [
     description: 'Corte personalizado con diseño artístico. Incluye consulta de estilo.',
     price: 500,
     duration: 45,
-    category: 'barberia',
+    category_id: 'cat-1',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
@@ -46,7 +51,7 @@ export const defaultServices: Service[] = [
     description: 'Perfilado, afeitado con navaja y aplicación de aceites esenciales.',
     price: 200,
     duration: 25,
-    category: 'barberia',
+    category_id: 'cat-1',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
@@ -57,7 +62,7 @@ export const defaultServices: Service[] = [
     description: 'Coloración completa del cabello con productos de alta calidad. Incluye diagnóstico capilar.',
     price: 800,
     duration: 90,
-    category: 'peluqueria',
+    category_id: 'cat-2',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
@@ -68,7 +73,7 @@ export const defaultServices: Service[] = [
     description: 'Peinado para eventos especiales: bodas, quinceañeras, graduaciones.',
     price: 600,
     duration: 60,
-    category: 'peluqueria',
+    category_id: 'cat-2',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
@@ -79,7 +84,7 @@ export const defaultServices: Service[] = [
     description: 'Hidratación profunda, reconstrucción y nutrición del cabello.',
     price: 450,
     duration: 45,
-    category: 'peluqueria',
+    category_id: 'cat-2',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
@@ -90,7 +95,7 @@ export const defaultServices: Service[] = [
     description: 'Limpieza profunda con extracción, tónico y mascarilla hidratante.',
     price: 500,
     duration: 50,
-    category: 'estetica',
+    category_id: 'cat-3',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
@@ -101,55 +106,22 @@ export const defaultServices: Service[] = [
     description: 'Cuidado completo de manos y pies. Incluye esmaltado.',
     price: 400,
     duration: 60,
-    category: 'estetica',
+    category_id: 'cat-3',
     image_url: null,
     active: true,
     created_at: new Date().toISOString(),
   },
 ];
 
-export const defaultSchedule: Schedule[] = [
-  { id: '1', day_of_week: 0, open_time: '00:00', close_time: '00:00', is_active: false }, // Domingo
-  { id: '2', day_of_week: 1, open_time: '09:00', close_time: '19:00', is_active: true }, // Lunes
-  { id: '3', day_of_week: 2, open_time: '09:00', close_time: '19:00', is_active: true },
-  { id: '4', day_of_week: 3, open_time: '09:00', close_time: '19:00', is_active: true },
-  { id: '5', day_of_week: 4, open_time: '09:00', close_time: '19:00', is_active: true },
-  { id: '6', day_of_week: 5, open_time: '09:00', close_time: '19:00', is_active: true },
-  { id: '7', day_of_week: 6, open_time: '09:00', close_time: '14:00', is_active: true }, // Sábado
-];
-
-export const defaultAppointments: Appointment[] = [
-  {
-    id: '1',
-    client_name: 'María García',
-    client_phone: '5351234567',
-    service_id: '4',
-    date: '2026-01-20',
-    time: '10:00',
-    notes: 'Prefiero tonos cálidos',
-    status: 'confirmed',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    client_name: 'Carlos Rodríguez',
-    client_phone: '5359876543',
-    service_id: '2',
-    date: '2026-01-20',
-    time: '14:00',
-    notes: '',
-    status: 'pending',
-    created_at: new Date().toISOString(),
-  },
-];
+export const defaultAppointments: Appointment[] = [];
 
 // ============ Local Storage Helpers ============
 
 const STORAGE_KEYS = {
   services: 'lafigura_services',
+  categories: 'lafigura_categories',
   appointments: 'lafigura_appointments',
   businessInfo: 'lafigura_business_info',
-  schedule: 'lafigura_schedule',
   theme: 'lafigura_theme',
 };
 

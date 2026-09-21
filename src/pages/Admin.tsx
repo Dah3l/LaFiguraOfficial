@@ -3,14 +3,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Shield, Plus, Edit3, Trash2, Calendar, Clock, CheckCircle,
-  XCircle, AlertCircle, Building, Scissors, Settings, LogIn
+  XCircle, Building, Scissors, Tags, LogIn, FolderOpen
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
-import { serviceSchema, businessInfoSchema, type ServiceFormData } from '../types';
+import { serviceSchema, categorySchema, businessInfoSchema, type ServiceFormData, type CategoryFormData } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 
-type AdminTab = 'appointments' | 'services' | 'business' | 'schedule';
+type AdminTab = 'appointments' | 'services' | 'categories' | 'business';
 
 const statusConfig = {
   pending: { label: 'Pendiente', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Clock },
@@ -25,8 +25,8 @@ export function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [editingService, setEditingService] = useState<string | null>(null);
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
 
-  // Simple admin auth (demo)
   const handleLogin = () => {
     if (password === 'admin123') {
       setIsAuthenticated(true);
@@ -72,8 +72,8 @@ export function AdminPage() {
   const tabs: { id: AdminTab; label: string; icon: typeof Calendar }[] = [
     { id: 'appointments', label: 'Citas', icon: Calendar },
     { id: 'services', label: 'Servicios', icon: Scissors },
+    { id: 'categories', label: 'Categorías', icon: Tags },
     { id: 'business', label: 'Negocio', icon: Building },
-    { id: 'schedule', label: 'Horarios', icon: Settings },
   ];
 
   return (
@@ -123,13 +123,21 @@ export function AdminPage() {
               setEditingService={setEditingService}
             />
           )}
+          {activeTab === 'categories' && (
+            <CategoriesTab
+              key="cat"
+              editingCategory={editingCategory}
+              setEditingCategory={setEditingCategory}
+            />
+          )}
           {activeTab === 'business' && <BusinessTab key="biz" />}
-          {activeTab === 'schedule' && <ScheduleTab key="sch" />}
         </AnimatePresence>
       </div>
     </div>
   );
 }
+
+/* ============ APPOINTMENTS TAB ============ */
 
 function AppointmentsTab() {
   const { state, dispatch, addToast } = useStore();
@@ -208,8 +216,14 @@ function AppointmentsTab() {
   );
 }
 
+/* ============ SERVICES TAB ============ */
+
 function ServicesTab({ editingService, setEditingService }: { editingService: string | null; setEditingService: (id: string | null) => void }) {
   const { state, dispatch, addToast } = useStore();
+
+  const getCategoryEmoji = (categoryId: string) => {
+    return state.categories.find(c => c.id === categoryId)?.emoji || '✨';
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
@@ -231,9 +245,7 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
       {state.services.map(service => (
         <div key={service.id} className="flex items-center gap-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-3">
           <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
-            <span className="text-lg">
-              {service.category === 'barberia' ? '💈' : service.category === 'peluqueria' ? '💇' : '✨'}
-            </span>
+            <span className="text-lg">{getCategoryEmoji(service.category_id)}</span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{service.name}</p>
@@ -262,23 +274,24 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
 }
 
 function ServiceForm({ service, onClose }: { service: import('../types').Service | null; onClose: () => void }) {
-  const { dispatch, addToast } = useStore();
+  const { state, dispatch, addToast } = useStore();
+  const activeCategories = state.categories.filter(c => c.active);
 
   const { register, handleSubmit, formState: { errors } } = useForm<ServiceFormData>({
-    resolver: zodResolver(serviceSchema) as any,
+    resolver: zodResolver(serviceSchema) as never,
     defaultValues: service ? {
       name: service.name,
       description: service.description,
       price: service.price,
       duration: service.duration,
-      category: service.category,
+      category_id: service.category_id,
       active: service.active,
     } : {
       name: '',
       description: '',
       price: 0,
       duration: 30,
-      category: 'barberia',
+      category_id: activeCategories[0]?.id || '',
       active: true,
     },
   });
@@ -322,10 +335,10 @@ function ServiceForm({ service, onClose }: { service: import('../types').Service
           {errors.duration && <p className="text-red-500 text-xs">{errors.duration.message}</p>}
         </div>
       </div>
-      <select {...register('category')} className="w-full px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 text-base">
-        <option value="barberia">Barbería</option>
-        <option value="peluqueria">Peluquería</option>
-        <option value="estetica">Estética</option>
+      <select {...register('category_id')} className="w-full px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 text-base">
+        {activeCategories.map(cat => (
+          <option key={cat.id} value={cat.id}>{cat.emoji} {cat.name}</option>
+        ))}
       </select>
       <div className="flex gap-2">
         <button type="submit" className="flex-1 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors min-h-[40px]">
@@ -339,15 +352,186 @@ function ServiceForm({ service, onClose }: { service: import('../types').Service
   );
 }
 
+/* ============ CATEGORIES TAB ============ */
+
+function CategoriesTab({ editingCategory, setEditingCategory }: { editingCategory: string | null; setEditingCategory: (id: string | null) => void }) {
+  const { state, dispatch, addToast } = useStore();
+
+  const getServiceCount = (categoryId: string) => {
+    return state.services.filter(s => s.category_id === categoryId).length;
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+      <button
+        onClick={() => setEditingCategory('new')}
+        className="w-full py-3 border-2 border-dashed border-violet-300 dark:border-violet-700 text-violet-600 dark:text-violet-400 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors min-h-[48px]"
+      >
+        <Plus size={16} />
+        Nueva Categoría
+      </button>
+
+      {editingCategory && (
+        <CategoryForm
+          category={editingCategory === 'new' ? null : state.categories.find(c => c.id === editingCategory) || null}
+          onClose={() => setEditingCategory(null)}
+        />
+      )}
+
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        Las categorías organizan tus servicios. Puedes editar nombre, emoji y descripción.
+      </p>
+
+      {state.categories.sort((a, b) => a.order - b.order).map(category => (
+        <div key={category.id} className="flex items-center gap-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-3">
+          <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
+            <span className="text-lg">{category.emoji}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-gray-900 dark:text-white text-sm">{category.name}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {getServiceCount(category.id)} servicios · {category.active ? 'Activa' : 'Inactiva'}
+            </p>
+          </div>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setEditingCategory(category.id)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+              aria-label="Editar categoría"
+            >
+              <Edit3 size={14} />
+            </button>
+            <button
+              onClick={() => {
+                const count = getServiceCount(category.id);
+                if (count > 0) {
+                  addToast(`No puedes eliminar: tiene ${count} servicio(s) asignado(s)`, 'error');
+                  return;
+                }
+                dispatch({ type: 'DELETE_CATEGORY', id: category.id });
+                addToast('Categoría eliminada', 'info');
+              }}
+              className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 transition-colors"
+              aria-label="Eliminar categoría"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
+      ))}
+    </motion.div>
+  );
+}
+
+function CategoryForm({ category, onClose }: { category: import('../types').Category | null; onClose: () => void }) {
+  const { state, dispatch, addToast } = useStore();
+
+  const { register, handleSubmit, formState: { errors } } = useForm<CategoryFormData>({
+    resolver: zodResolver(categorySchema) as never,
+    defaultValues: category ? {
+      name: category.name,
+      slug: category.slug,
+      emoji: category.emoji,
+      description: category.description,
+      active: category.active,
+      order: category.order,
+    } : {
+      name: '',
+      slug: '',
+      emoji: '✨',
+      description: '',
+      active: true,
+      order: state.categories.length,
+    },
+  });
+
+  const onSubmit = (data: CategoryFormData) => {
+    if (category) {
+      dispatch({ type: 'UPDATE_CATEGORY', category: { ...category, ...data } });
+      addToast('Categoría actualizada', 'success');
+    } else {
+      dispatch({
+        type: 'ADD_CATEGORY',
+        category: { ...data, id: uuidv4() },
+      });
+      addToast('Categoría creada', 'success');
+    }
+    onClose();
+  };
+
+  return (
+    <motion.form
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      onSubmit={handleSubmit(onSubmit)}
+      className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3 border border-gray-200 dark:border-gray-700"
+    >
+      <h3 className="font-semibold text-sm text-gray-900 dark:text-white flex items-center gap-2">
+        <FolderOpen size={14} />
+        {category ? 'Editar Categoría' : 'Nueva Categoría'}
+      </h3>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="col-span-2">
+          <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Nombre</label>
+          <input {...register('name')} placeholder="Ej: Barbería" className="w-full px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 text-base" />
+          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Emoji</label>
+          <input {...register('emoji')} placeholder="💈" className="w-full px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 text-base text-center" />
+          {errors.emoji && <p className="text-red-500 text-xs mt-1">{errors.emoji.message}</p>}
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Slug (identificador único)</label>
+        <input {...register('slug')} placeholder="Ej: barberia" className="w-full px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 text-base" />
+        {errors.slug && <p className="text-red-500 text-xs mt-1">{errors.slug.message}</p>}
+      </div>
+
+      <div>
+        <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Descripción (opcional)</label>
+        <input {...register('description')} placeholder="Breve descripción de la categoría" className="w-full px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 text-base" />
+      </div>
+
+      <div>
+        <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Orden de aparición</label>
+        <input {...register('order', { valueAsNumber: true })} type="number" min={0} className="w-full px-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500 text-base" />
+      </div>
+
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input {...register('active')} type="checkbox" className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500" />
+        <span className="text-sm text-gray-700 dark:text-gray-300">Categoría activa (visible en la web)</span>
+      </label>
+
+      <div className="flex gap-2 pt-1">
+        <button type="submit" className="flex-1 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors min-h-[40px]">
+          {category ? 'Guardar' : 'Crear'}
+        </button>
+        <button type="button" onClick={onClose} className="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors min-h-[40px]">
+          Cancelar
+        </button>
+      </div>
+    </motion.form>
+  );
+}
+
+/* ============ BUSINESS TAB ============ */
+
 function BusinessTab() {
   const { state, dispatch, addToast } = useStore();
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const form = useForm<any>({
     resolver: zodResolver(businessInfoSchema) as any,
     defaultValues: state.businessInfo,
   });
+  const { register } = form;
+  const handleSubmit = form.handleSubmit as (cb: (data: Record<string, string>) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: Record<string, string>) => {
     dispatch({ type: 'UPDATE_BUSINESS_INFO', info: { ...state.businessInfo, ...data } });
     addToast('Información actualizada', 'success');
   };
@@ -399,47 +583,5 @@ function BusinessTab() {
         Guardar Cambios
       </button>
     </motion.form>
-  );
-}
-
-function ScheduleTab() {
-  const { state, dispatch, addToast } = useStore();
-  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-  const toggleDay = (dayIndex: number) => {
-    const updated = state.schedule.map(s =>
-      s.day_of_week === dayIndex ? { ...s, is_active: !s.is_active } : s
-    );
-    dispatch({ type: 'UPDATE_SCHEDULE', schedule: updated });
-    addToast('Horario actualizado', 'success');
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Gestiona los días y horarios de atención</p>
-      {state.schedule.map(s => (
-        <div key={s.id} className="flex items-center gap-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-3">
-          <button
-            onClick={() => toggleDay(s.day_of_week)}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-              s.is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-600' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
-            }`}
-          >
-            {s.is_active ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-          </button>
-          <div className="flex-1">
-            <p className={`text-sm font-medium ${s.is_active ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
-              {days[s.day_of_week]}
-            </p>
-            {s.is_active && (
-              <p className="text-xs text-gray-500">{s.open_time} — {s.close_time}</p>
-            )}
-          </div>
-          {!s.is_active && (
-            <span className="text-xs text-gray-400">Cerrado</span>
-          )}
-        </div>
-      ))}
-    </motion.div>
   );
 }

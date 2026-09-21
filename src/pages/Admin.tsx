@@ -9,6 +9,7 @@ import { serviceSchema, categorySchema, businessInfoSchema, type ServiceFormData
 import { motion, AnimatePresence } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 import * as supabaseServices from '../lib/supabase-services';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 type AdminTab = 'services' | 'categories' | 'business';
 
@@ -148,6 +149,7 @@ export function AdminPage() {
 
 function ServicesTab({ editingService, setEditingService }: { editingService: string | null; setEditingService: (id: string | null) => void }) {
   const { state, dispatch, addToast, loadData } = useStore();
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const getCategoryEmoji = (categoryId: string) => {
     return state.categories.find(c => c.id === categoryId)?.emoji || '✨';
@@ -160,10 +162,13 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
     if (success) {
       dispatch({ type: 'DELETE_SERVICE', id });
       addToast('Servicio eliminado', 'info');
+      setDeleteConfirmId(null);
     } else {
       addToast('Error al eliminar el servicio', 'error');
     }
   };
+
+  const serviceToDelete = deleteConfirmId ? state.services.find(s => s.id === deleteConfirmId) : null;
 
   const handleMove = async (service: import('../types').Service, direction: 'up' | 'down') => {
     const currentIndex = sortedServices.findIndex(s => s.id === service.id);
@@ -246,7 +251,7 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
               <Edit3 size={14} />
             </button>
             <button
-              onClick={() => handleDelete(service.id)}
+              onClick={() => setDeleteConfirmId(service.id)}
               className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 transition-colors"
               aria-label="Eliminar servicio"
             >
@@ -255,6 +260,18 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
           </div>
         </div>
       ))}
+
+      {/* Modal de confirmación para eliminar servicio */}
+      <ConfirmModal
+        isOpen={!!deleteConfirmId}
+        title="Eliminar servicio"
+        message={`¿Estás seguro de que deseas eliminar "${serviceToDelete?.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+        onCancel={() => setDeleteConfirmId(null)}
+        type="danger"
+      />
     </motion.div>
   );
 }
@@ -350,6 +367,7 @@ function ServiceForm({ service, onClose }: { service: import('../types').Service
 
 function CategoriesTab({ editingCategory, setEditingCategory }: { editingCategory: string | null; setEditingCategory: (id: string | null) => void }) {
   const { state, dispatch, addToast } = useStore();
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const getServiceCount = (categoryId: string) => {
     return state.services.filter(s => s.category_id === categoryId).length;
@@ -359,16 +377,20 @@ function CategoriesTab({ editingCategory, setEditingCategory }: { editingCategor
     const count = getServiceCount(id);
     if (count > 0) {
       addToast(`No puedes eliminar: tiene ${count} servicio(s) asignado(s)`, 'error');
+      setDeleteConfirmId(null);
       return;
     }
     const success = await supabaseServices.deleteCategory(id);
     if (success) {
       dispatch({ type: 'DELETE_CATEGORY', id });
       addToast('Categoría eliminada', 'info');
+      setDeleteConfirmId(null);
     } else {
       addToast('Error al eliminar la categoría', 'error');
     }
   };
+
+  const categoryToDelete = deleteConfirmId ? state.categories.find(c => c.id === deleteConfirmId) : null;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
@@ -411,7 +433,7 @@ function CategoriesTab({ editingCategory, setEditingCategory }: { editingCategor
               <Edit3 size={14} />
             </button>
             <button
-              onClick={() => handleDelete(category.id)}
+              onClick={() => setDeleteConfirmId(category.id)}
               className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 transition-colors"
               aria-label="Eliminar categoría"
             >
@@ -420,6 +442,18 @@ function CategoriesTab({ editingCategory, setEditingCategory }: { editingCategor
           </div>
         </div>
       ))}
+
+      {/* Modal de confirmación para eliminar categoría */}
+      <ConfirmModal
+        isOpen={!!deleteConfirmId}
+        title="Eliminar categoría"
+        message={`¿Estás seguro de que deseas eliminar "${categoryToDelete?.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+        onCancel={() => setDeleteConfirmId(null)}
+        type="danger"
+      />
     </motion.div>
   );
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  Shield, Plus, Edit3, Trash2, Calendar, Clock, CheckCircle, XCircle, Building, Scissors, Tags, LogIn, FolderOpen, ChevronUp, ChevronDown
+  Shield, Plus, Edit3, Trash2, Calendar, Clock, CheckCircle, XCircle, Building, Scissors, Tags, LogIn, FolderOpen, ChevronUp, ChevronDown, Eye, EyeOff
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { serviceSchema, categorySchema, businessInfoSchema, type ServiceFormData, type CategoryFormData } from '../types';
@@ -24,6 +24,7 @@ export function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('services');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [editingService, setEditingService] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
 
@@ -48,14 +49,28 @@ export function AdminPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Ingresa la contraseña de administrador</p>
         </div>
         <div className="max-w-sm mx-auto space-y-4">
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Contraseña"
-            className="w-full px-4 py-3.5 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none text-base"
-            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Contraseña"
+              className="w-full px-4 py-3.5 pr-12 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none text-base"
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            >
+              {showPassword ? (
+                <EyeOff size={18} className="text-gray-500 dark:text-gray-400" />
+              ) : (
+                <Eye size={18} className="text-gray-500 dark:text-gray-400" />
+              )}
+            </button>
+          </div>
           <button
             onClick={handleLogin}
             className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 min-h-[48px]"
@@ -63,7 +78,6 @@ export function AdminPage() {
             <LogIn size={16} />
             Acceder
           </button>
-          <p className="text-xs text-center text-gray-400">Demo: contraseña "admin123"</p>
         </div>
       </div>
     );

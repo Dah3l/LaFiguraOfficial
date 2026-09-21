@@ -109,6 +109,7 @@ export function HomePage() {
         isOpen={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
         whatsappNumber={businessInfo.whatsapp}
+        services={services.filter(s => s.active)}
       />
     </div>
   );

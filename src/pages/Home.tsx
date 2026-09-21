@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { CalendarCheck, Clock, Sparkles, ChevronRight, MessageCircle } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { motion } from 'framer-motion';
+import { BookingModal } from '../components/BookingModal';
 
 export function HomePage() {
   const { state, navigate } = useStore();
   const { businessInfo, services, categories } = state;
   const featuredServices = services.filter(s => s.active).slice(0, 3);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const getCategoryEmoji = (categoryId: string) => {
     return categories.find(c => c.id === categoryId)?.emoji || '✨';
@@ -35,15 +38,13 @@ export function HomePage() {
             <p className="text-white/80 text-sm sm:text-base max-w-sm mx-auto mb-6">
               {businessInfo.description}
             </p>
-            <a
-              href={`https://wa.me/${businessInfo.whatsapp}?text=${encodeURIComponent('¡Hola! Quisiera reservar una cita en La Figura.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsBookingModalOpen(true)}
               className="inline-flex items-center gap-2 px-6 py-3.5 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 min-h-[48px]"
             >
               <MessageCircle size={18} />
               Reservar por WhatsApp
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -103,6 +104,12 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* Modal de reserva */}
+      <BookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        whatsappNumber={businessInfo.whatsapp}
+      />
     </div>
   );
 }

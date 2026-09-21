@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { Clock, DollarSign, Search, MessageCircle } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BookingModal } from '../components/BookingModal';
 
 export function ServicesPage() {
   const { state } = useStore();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedServiceName, setSelectedServiceName] = useState<string | undefined>(undefined);
 
   const activeCategories = state.categories.filter(c => c.active).sort((a, b) => a.order - b.order);
 
@@ -21,11 +24,6 @@ export function ServicesPage() {
 
   const getCategoryEmoji = (categoryId: string) => {
     return state.categories.find(c => c.id === categoryId)?.emoji || '✨';
-  };
-
-  const buildWhatsAppLink = (serviceName: string) => {
-    const msg = `¡Hola! Me interesa reservar el servicio *${serviceName}* en La Figura. ¿Tienen disponibilidad?`;
-    return `https://wa.me/${state.businessInfo.whatsapp}?text=${encodeURIComponent(msg)}`;
   };
 
   return (
@@ -127,21 +125,33 @@ export function ServicesPage() {
                       </div>
                     </div>
                   </div>
-                  <a
-                    href={buildWhatsAppLink(service.name)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => {
+                      setSelectedServiceName(service.name);
+                      setIsBookingModalOpen(true);
+                    }}
                     className="flex items-center justify-center gap-2 w-full py-3 bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 text-sm font-semibold hover:bg-green-100 dark:hover:bg-green-950/50 transition-colors border-t border-gray-50 dark:border-gray-800 min-h-[44px]"
                   >
                     <MessageCircle size={14} />
                     Reservar por WhatsApp
-                  </a>
+                  </button>
                 </motion.div>
               ))}
             </div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Modal de reserva */}
+      <BookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => {
+          setIsBookingModalOpen(false);
+          setSelectedServiceName(undefined);
+        }}
+        whatsappNumber={state.businessInfo.whatsapp}
+        preselectedService={selectedServiceName}
+      />
     </div>
   );
 }

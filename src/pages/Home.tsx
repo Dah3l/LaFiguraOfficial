@@ -1,12 +1,6 @@
-import { CalendarCheck, Star, Clock, Sparkles, ChevronRight, MessageCircle } from 'lucide-react';
+import { CalendarCheck, Clock, Sparkles, ChevronRight, MessageCircle } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { motion } from 'framer-motion';
-
-const testimonials = [
-  { name: 'María G.', text: '¡Me encanta el resultado! Siempre salgo satisfecha.', rating: 5 },
-  { name: 'Carlos R.', text: 'El mejor corte de la zona. Profesionales de verdad.', rating: 5 },
-  { name: 'Ana L.', text: 'Tratamiento facial increíble. Mi piel nunca se sintió mejor.', rating: 5 },
-];
 
 export function HomePage() {
   const { state, navigate } = useStore();
@@ -55,7 +49,7 @@ export function HomePage() {
       </section>
 
       {/* Quick Stats */}
-      <section className="px-5 -mt-5">
+      <section className="px-5 mt-6">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 p-4 grid grid-cols-3 gap-3">
           <div className="text-center">
             <p className="text-xl font-bold text-violet-600 dark:text-violet-400">{services.filter(s => s.active).length}+</p>
@@ -105,27 +99,6 @@ export function HomePage() {
                 </div>
               </div>
             </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="px-5 mt-8">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Lo que dicen nuestros clientes</h2>
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 snap-x snap-mandatory scrollbar-hide">
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="min-w-[260px] snap-start p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800"
-            >
-              <div className="flex gap-0.5 mb-2">
-                {Array.from({ length: t.rating }).map((_, j) => (
-                  <Star key={j} size={14} className="fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 italic">"{t.text}"</p>
-              <p className="text-xs font-semibold text-gray-900 dark:text-white mt-2">— {t.name}</p>
-            </div>
           ))}
         </div>
       </section>

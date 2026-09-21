@@ -43,12 +43,14 @@ CREATE TABLE IF NOT EXISTS services (
   category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
   image_url TEXT,
   active BOOLEAN NOT NULL DEFAULT true,
+  "order" INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_services_active ON services(active);
 CREATE INDEX idx_services_category ON services(category_id);
+CREATE INDEX idx_services_order ON services("order");
 
 -- 4. APPOINTMENTS
 CREATE TABLE IF NOT EXISTS appointments (

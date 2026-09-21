@@ -1,16 +1,10 @@
-import { MapPin, Clock, Phone, Instagram, Facebook, Send, MessageCircle } from 'lucide-react';
+import { MapPin, Clock, Phone, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { motion } from 'framer-motion';
 
 export function ContactPage() {
-  const { state, addToast } = useStore();
+  const { state } = useStore();
   const { businessInfo } = state;
-
-  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    addToast('Mensaje enviado. Te responderemos pronto.', 'success');
-    (e.target as HTMLFormElement).reset();
-  };
 
   return (
     <div className="pb-4">
@@ -114,36 +108,17 @@ export function ContactPage() {
         </div>
       </div>
 
-      {/* Contact Form */}
-      <div className="px-5">
-        <h2 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Envíanos un mensaje</h2>
-        <form onSubmit={handleContactSubmit} className="space-y-3">
-          <input
-            type="text"
-            placeholder="Tu nombre"
-            required
-            className="w-full px-4 py-3.5 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none text-base"
-          />
-          <input
-            type="tel"
-            placeholder="Tu teléfono"
-            required
-            className="w-full px-4 py-3.5 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none text-base"
-          />
-          <textarea
-            placeholder="Tu mensaje..."
-            rows={4}
-            required
-            className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none resize-none text-base"
-          />
-          <button
-            type="submit"
-            className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 min-h-[48px]"
-          >
-            <Send size={16} />
-            Enviar Mensaje
-          </button>
-        </form>
+      {/* WhatsApp CTA */}
+      <div className="px-5 mt-6">
+        <a
+          href={`https://wa.me/${businessInfo.whatsapp}?text=${encodeURIComponent('¡Hola! Quisiera más información sobre los servicios de La Figura.')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 w-full py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors min-h-[52px]"
+        >
+          <MessageCircle size={20} />
+          Escríbenos por WhatsApp
+        </a>
       </div>
     </div>
   );

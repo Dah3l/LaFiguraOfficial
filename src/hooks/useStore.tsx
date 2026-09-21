@@ -97,12 +97,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const loadData = useCallback(async () => {
+    console.log('Loading data from Supabase...');
+    
     if (!isSupabaseConfigured()) {
       console.log('Supabase not configured, using default data');
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
     }
 
+    console.log('Supabase is configured, fetching data...');
     dispatch({ type: 'SET_LOADING', isLoading: true });
 
     try {
@@ -112,6 +115,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         supabaseServices.getServices(),
         supabaseServices.getAppointments(),
       ]);
+
+      console.log('Data fetched:', { businessInfo, categories, services, appointments });
 
       if (businessInfo) {
         dispatch({ type: 'SET_BUSINESS_INFO', info: businessInfo });
@@ -125,6 +130,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (appointments.length > 0) {
         dispatch({ type: 'SET_APPOINTMENTS', appointments });
       }
+      
+      console.log('Data loaded successfully');
     } catch (error) {
       console.error('Error loading data from Supabase:', error);
     } finally {

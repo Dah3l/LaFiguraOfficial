@@ -35,6 +35,7 @@ export interface Service {
   category_id: string;
   image_url: string | null;
   active: boolean;
+  order: number;
   created_at: string;
 }
 
@@ -71,6 +72,7 @@ export const serviceSchema = z.object({
   duration: z.number().min(5, 'Mínimo 5 minutos').max(240),
   category_id: z.string().min(1, 'Selecciona una categoría'),
   active: z.boolean().default(true),
+  order: z.number().min(0).default(0),
 });
 
 export type ServiceFormData = z.infer<typeof serviceSchema>;

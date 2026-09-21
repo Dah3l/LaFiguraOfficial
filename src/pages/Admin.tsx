@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  Shield, Plus, Edit3, Trash2, Calendar, Clock, CheckCircle,
-  XCircle, Building, Scissors, Tags, LogIn, FolderOpen
+  Shield, Plus, Edit3, Trash2, Calendar, Clock, CheckCircle, XCircle, Building, Scissors, Tags, LogIn, FolderOpen, ChevronUp, ChevronDown
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { serviceSchema, categorySchema, businessInfoSchema, type ServiceFormData, type CategoryFormData } from '../types';
@@ -11,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 import * as supabaseServices from '../lib/supabase-services';
 
-type AdminTab = 'appointments' | 'services' | 'categories' | 'business';
+type AdminTab = 'services' | 'categories' | 'business';
 
 const statusConfig = {
   pending: { label: 'Pendiente', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Clock },
@@ -22,7 +21,7 @@ const statusConfig = {
 
 export function AdminPage() {
   const { state, dispatch, addToast } = useStore();
-  const [activeTab, setActiveTab] = useState<AdminTab>('appointments');
+  const [activeTab, setActiveTab] = useState<AdminTab>('services');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [editingService, setEditingService] = useState<string | null>(null);
@@ -71,7 +70,6 @@ export function AdminPage() {
   }
 
   const tabs: { id: AdminTab; label: string; icon: typeof Calendar }[] = [
-    { id: 'appointments', label: 'Citas', icon: Calendar },
     { id: 'services', label: 'Servicios', icon: Scissors },
     { id: 'categories', label: 'Categorías', icon: Tags },
     { id: 'business', label: 'Negocio', icon: Building },
@@ -113,7 +111,6 @@ export function AdminPage() {
 
       <div className="px-5">
         <AnimatePresence mode="wait">
-          {activeTab === 'appointments' && <AppointmentsTab key="apt" />}
           {activeTab === 'services' && (
             <ServicesTab
               key="svc"
@@ -135,98 +132,14 @@ export function AdminPage() {
   );
 }
 
-function AppointmentsTab() {
-  const { state, addToast } = useStore();
-  const [filter, setFilter] = useState<string>('all');
-
-  const filtered = filter === 'all'
-    ? state.appointments
-    : state.appointments.filter(a => a.status === filter);
-
-  const handleStatusChange = async (id: string, status: 'confirmed' | 'cancelled') => {
-    const success = await supabaseServices.updateAppointmentStatus(id, status);
-    if (success) {
-      addToast(`Cita ${status === 'confirmed' ? 'confirmada' : 'cancelada'}`, 'success');
-    } else {
-      addToast('Error al actualizar la cita', 'error');
-    }
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-              filter === f
-                ? 'bg-violet-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
-            }`}
-          >
-            {f === 'all' ? 'Todas' : statusConfig[f as keyof typeof statusConfig].label}
-          </button>
-        ))}
-      </div>
-
-      {filtered.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-3xl mb-2">📋</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">No hay citas</p>
-        </div>
-      ) : (
-        filtered.map(apt => {
-          const service = state.services.find(s => s.id === apt.service_id);
-          const config = statusConfig[apt.status];
-          const StatusIcon = config.icon;
-          return (
-            <div key={apt.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm">{apt.client_name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{apt.client_phone}</p>
-                </div>
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-                  <StatusIcon size={10} />
-                  {config.label}
-                </span>
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-300 space-y-0.5">
-                <p>💇 {service?.name || 'Servicio'}</p>
-                <p>📅 {apt.date} — 🕐 {apt.time}</p>
-                {apt.notes && <p className="text-gray-400 italic">"{apt.notes}"</p>}
-              </div>
-              {apt.status === 'pending' && (
-                <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => handleStatusChange(apt.id, 'confirmed')}
-                    className="flex-1 py-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-medium rounded-lg hover:bg-green-100 transition-colors"
-                  >
-                    Confirmar
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange(apt.id, 'cancelled')}
-                    className="flex-1 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg hover:bg-red-100 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              )}
-            </div>
-          );
-        })
-      )}
-    </motion.div>
-  );
-}
-
 function ServicesTab({ editingService, setEditingService }: { editingService: string | null; setEditingService: (id: string | null) => void }) {
   const { state, dispatch, addToast } = useStore();
 
   const getCategoryEmoji = (categoryId: string) => {
     return state.categories.find(c => c.id === categoryId)?.emoji || '✨';
   };
+
+  const sortedServices = [...state.services].sort((a, b) => a.order - b.order);
 
   const handleDelete = async (id: string) => {
     const success = await supabaseServices.deleteService(id);
@@ -236,6 +149,27 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
     } else {
       addToast('Error al eliminar el servicio', 'error');
     }
+  };
+
+  const handleMove = async (service: import('../types').Service, direction: 'up' | 'down') => {
+    const currentIndex = sortedServices.findIndex(s => s.id === service.id);
+    if (direction === 'up' && currentIndex === 0) return;
+    if (direction === 'down' && currentIndex === sortedServices.length - 1) return;
+
+    const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const swapService = sortedServices[swapIndex];
+
+    // Intercambiar órdenes
+    const updatedService = { ...service, order: swapService.order };
+    const updatedSwap = { ...swapService, order: service.order };
+
+    await Promise.all([
+      supabaseServices.updateService(updatedService),
+      supabaseServices.updateService(updatedSwap),
+    ]);
+
+    dispatch({ type: 'UPDATE_SERVICE', service: updatedService });
+    dispatch({ type: 'UPDATE_SERVICE', service: updatedSwap });
   };
 
   return (
@@ -248,6 +182,10 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
         Nuevo Servicio
       </button>
 
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        Usa las flechas para reordenar los servicios en la lista
+      </p>
+
       {editingService && (
         <ServiceForm
           service={editingService === 'new' ? null : state.services.find(s => s.id === editingService) || null}
@@ -255,8 +193,26 @@ function ServicesTab({ editingService, setEditingService }: { editingService: st
         />
       )}
 
-      {state.services.map(service => (
-        <div key={service.id} className="flex items-center gap-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-3">
+      {sortedServices.map((service, index) => (
+        <div key={service.id} className="flex items-center gap-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-3">
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={() => handleMove(service, 'up')}
+              disabled={index === 0}
+              className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Mover arriba"
+            >
+              <ChevronUp size={14} />
+            </button>
+            <button
+              onClick={() => handleMove(service, 'down')}
+              disabled={index === sortedServices.length - 1}
+              className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Mover abajo"
+            >
+              <ChevronDown size={14} />
+            </button>
+          </div>
           <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
             <span className="text-lg">{getCategoryEmoji(service.category_id)}</span>
           </div>
@@ -321,7 +277,7 @@ function ServiceForm({ service, onClose }: { service: import('../types').Service
         addToast('Error al actualizar el servicio', 'error');
       }
     } else {
-      const newService = { ...data, id: uuidv4(), image_url: null, created_at: new Date().toISOString() };
+      const newService = { ...data, id: uuidv4(), image_url: null, order: state.services.length, created_at: new Date().toISOString() };
       const created = await supabaseServices.createService(newService);
       if (created) {
         dispatch({ type: 'ADD_SERVICE', service: created });

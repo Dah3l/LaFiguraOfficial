@@ -10,12 +10,14 @@ export function ServicesPage() {
 
   const activeCategories = state.categories.filter(c => c.active).sort((a, b) => a.order - b.order);
 
-  const filteredServices = state.services.filter(s => {
-    if (!s.active) return false;
-    if (activeCategory !== 'all' && s.category_id !== activeCategory) return false;
-    if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+  const filteredServices = state.services
+    .filter(s => {
+      if (!s.active) return false;
+      if (activeCategory !== 'all' && s.category_id !== activeCategory) return false;
+      if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => a.order - b.order);
 
   const getCategoryEmoji = (categoryId: string) => {
     return state.categories.find(c => c.id === categoryId)?.emoji || '✨';

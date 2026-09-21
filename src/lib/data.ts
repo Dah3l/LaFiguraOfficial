@@ -32,6 +32,7 @@ export const defaultServices: Service[] = [
     category_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     image_url: null,
     active: true,
+    order: 0,
     created_at: new Date().toISOString(),
   },
   {
@@ -43,6 +44,7 @@ export const defaultServices: Service[] = [
     category_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     image_url: null,
     active: true,
+    order: 1,
     created_at: new Date().toISOString(),
   },
   {
@@ -54,6 +56,7 @@ export const defaultServices: Service[] = [
     category_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     image_url: null,
     active: true,
+    order: 2,
     created_at: new Date().toISOString(),
   },
   {
@@ -65,6 +68,7 @@ export const defaultServices: Service[] = [
     category_id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
     image_url: null,
     active: true,
+    order: 0,
     created_at: new Date().toISOString(),
   },
   {
@@ -76,6 +80,7 @@ export const defaultServices: Service[] = [
     category_id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
     image_url: null,
     active: true,
+    order: 1,
     created_at: new Date().toISOString(),
   },
   {
@@ -87,6 +92,7 @@ export const defaultServices: Service[] = [
     category_id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
     image_url: null,
     active: true,
+    order: 2,
     created_at: new Date().toISOString(),
   },
   {
@@ -98,6 +104,7 @@ export const defaultServices: Service[] = [
     category_id: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
     image_url: null,
     active: true,
+    order: 0,
     created_at: new Date().toISOString(),
   },
   {
@@ -109,6 +116,7 @@ export const defaultServices: Service[] = [
     category_id: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
     image_url: null,
     active: true,
+    order: 1,
     created_at: new Date().toISOString(),
   },
 ];

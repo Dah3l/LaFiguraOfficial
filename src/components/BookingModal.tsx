@@ -16,6 +16,18 @@ export function BookingModal({ isOpen, onClose, whatsappNumber, services, presel
   const [selectedServiceId, setSelectedServiceId] = useState('');
   const [error, setError] = useState('');
 
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       setClientName('');

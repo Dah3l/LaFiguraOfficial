@@ -4,6 +4,8 @@ import type { BusinessInfo, Service, Category, Appointment } from '../types';
 // ============ BUSINESS INFO ============
 
 export async function getBusinessInfo(): Promise<BusinessInfo | null> {
+  console.log('Fetching business info from Supabase...');
+  
   const { data, error } = await supabase
     .from('business_info')
     .select('*')
@@ -13,25 +15,34 @@ export async function getBusinessInfo(): Promise<BusinessInfo | null> {
     console.error('Error fetching business info:', error);
     return null;
   }
+  
+  console.log('Business info loaded:', data);
   return data;
 }
 
 export async function updateBusinessInfo(info: Partial<BusinessInfo>): Promise<boolean> {
-  const { error } = await supabase
+  console.log('Updating business info:', info);
+  
+  const { data, error } = await supabase
     .from('business_info')
     .update({ ...info, updated_at: new Date().toISOString() })
-    .eq('id', info.id);
+    .eq('id', info.id)
+    .select();
   
   if (error) {
     console.error('Error updating business info:', error);
     return false;
   }
+  
+  console.log('Business info updated:', data);
   return true;
 }
 
 // ============ CATEGORIES ============
 
 export async function getCategories(): Promise<Category[]> {
+  console.log('Fetching categories from Supabase...');
+  
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -41,6 +52,8 @@ export async function getCategories(): Promise<Category[]> {
     console.error('Error fetching categories:', error);
     return [];
   }
+  
+  console.log('Categories loaded:', data);
   return data || [];
 }
 
@@ -59,15 +72,20 @@ export async function createCategory(category: Omit<Category, 'id' | 'created_at
 }
 
 export async function updateCategory(category: Category): Promise<boolean> {
-  const { error } = await supabase
+  console.log('Updating category:', category);
+  
+  const { data, error } = await supabase
     .from('categories')
     .update({ ...category, updated_at: new Date().toISOString() })
-    .eq('id', category.id);
+    .eq('id', category.id)
+    .select();
   
   if (error) {
     console.error('Error updating category:', error);
     return false;
   }
+  
+  console.log('Category updated:', data);
   return true;
 }
 
@@ -87,6 +105,8 @@ export async function deleteCategory(id: string): Promise<boolean> {
 // ============ SERVICES ============
 
 export async function getServices(): Promise<Service[]> {
+  console.log('Fetching services from Supabase...');
+  
   const { data, error } = await supabase
     .from('services')
     .select('*')
@@ -96,6 +116,8 @@ export async function getServices(): Promise<Service[]> {
     console.error('Error fetching services:', error);
     return [];
   }
+  
+  console.log('Services loaded:', data);
   return data || [];
 }
 
@@ -114,15 +136,20 @@ export async function createService(service: Omit<Service, 'id' | 'created_at' |
 }
 
 export async function updateService(service: Service): Promise<boolean> {
-  const { error } = await supabase
+  console.log('Updating service:', service);
+  
+  const { data, error } = await supabase
     .from('services')
     .update({ ...service, updated_at: new Date().toISOString() })
-    .eq('id', service.id);
+    .eq('id', service.id)
+    .select();
   
   if (error) {
     console.error('Error updating service:', error);
     return false;
   }
+  
+  console.log('Service updated:', data);
   return true;
 }
 

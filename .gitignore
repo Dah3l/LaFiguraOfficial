@@ -1,5 +1,25 @@
+# Dependencies
 node_modules/
-.next/
+
+# Build output
 dist/
-build/
+
+# Environment variables (NUNCA subir secretos)
+.env
+.env.local
+.env.*.local
+
+# Logs
 *.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# OS
+Thumbs.db
+.next/
+build/

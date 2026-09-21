@@ -150,6 +150,7 @@ export function ServicesPage() {
           setSelectedServiceName(undefined);
         }}
         whatsappNumber={state.businessInfo.whatsapp}
+        services={filteredServices}
         preselectedService={selectedServiceName}
       />
     </div>

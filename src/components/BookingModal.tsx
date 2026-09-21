@@ -1,38 +1,57 @@
 import { useState, useEffect } from 'react';
 import { X, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Service } from '../types';
 
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   whatsappNumber: string;
+  services: Service[];
   preselectedService?: string;
 }
 
-export function BookingModal({ isOpen, onClose, whatsappNumber, preselectedService }: BookingModalProps) {
+export function BookingModal({ isOpen, onClose, whatsappNumber, services, preselectedService }: BookingModalProps) {
   const [clientName, setClientName] = useState('');
-  const [serviceName, setServiceName] = useState('');
+  const [selectedServiceId, setSelectedServiceId] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      setServiceName(preselectedService || '');
       setClientName('');
       setError('');
+      
+      // Si viene un servicio pre-seleccionado, buscar su ID
+      if (preselectedService) {
+        const service = services.find(s => s.name === preselectedService);
+        if (service) {
+          setSelectedServiceId(service.id);
+        } else {
+          setSelectedServiceId('');
+        }
+      } else {
+        setSelectedServiceId('');
+      }
     }
-  }, [isOpen, preselectedService]);
+  }, [isOpen, preselectedService, services]);
 
   const handleSubmit = () => {
     if (!clientName.trim()) {
       setError('Por favor ingresa tu nombre');
       return;
     }
-    if (!serviceName.trim()) {
-      setError('Por favor ingresa el tipo de servicio');
+    if (!selectedServiceId) {
+      setError('Por favor selecciona un servicio');
       return;
     }
 
-    const message = `Hola, soy ${clientName.trim()}. Quiero reservar el servicio: ${serviceName.trim()}.`;
+    const service = services.find(s => s.id === selectedServiceId);
+    if (!service) {
+      setError('Servicio no válido');
+      return;
+    }
+
+    const message = `¡Hola! Me interesa reservar el servicio ${service.name} en La Figura. ¿Tienen disponibilidad?`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     
@@ -42,7 +61,7 @@ export function BookingModal({ isOpen, onClose, whatsappNumber, preselectedServi
 
   const handleClose = () => {
     setClientName('');
-    setServiceName('');
+    setSelectedServiceId('');
     setError('');
     onClose();
   };
@@ -108,16 +127,21 @@ export function BookingModal({ isOpen, onClose, whatsappNumber, preselectedServi
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Tipo de servicio solicitado
                 </label>
-                <input
-                  type="text"
-                  value={serviceName}
+                <select
+                  value={selectedServiceId}
                   onChange={(e) => {
-                    setServiceName(e.target.value);
+                    setSelectedServiceId(e.target.value);
                     setError('');
                   }}
-                  placeholder="Ej: Corte de cabello, Tinte global, etc."
-                  className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-violet-500 outline-none text-base"
-                />
+                  className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none text-base appearance-none cursor-pointer"
+                >
+                  <option value="">Selecciona un servicio</option>
+                  {services.map((service) => (
+                    <option key={service.id} value={service.id}>
+                      {service.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {error && (

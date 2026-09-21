@@ -51,7 +51,7 @@ export function BookingModal({ isOpen, onClose, whatsappNumber, services, presel
       return;
     }
 
-    const message = `¡Hola! Me interesa reservar el servicio ${service.name} en La Figura. ¿Tienen disponibilidad?`;
+    const message = `¡Hola! Soy ${clientName.trim()}. Me interesa reservar el servicio ${service.name} en La Figura. ¿Tienen disponibilidad?`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     

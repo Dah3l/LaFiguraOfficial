@@ -1,0 +1,17 @@
+{
+  "name": "La Figura - Peluquería & Barbería",
+  "short_name": "La Figura",
+  "description": "Reserva tu cita en La Figura. Peluquería, barbería y estética profesional.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

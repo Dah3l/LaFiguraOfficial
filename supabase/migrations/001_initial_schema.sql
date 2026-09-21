@@ -120,19 +120,19 @@ VALUES (
 
 -- Categories
 INSERT INTO categories (id, name, slug, emoji, description, active, "order") VALUES
-  ('cat-1', 'Barbería', 'barberia', '💈', 'Cortes, barba y estilos masculinos', true, 0),
-  ('cat-2', 'Peluquería', 'peluqueria', '💇', 'Cortes, tintes y tratamientos capilares', true, 1),
-  ('cat-3', 'Estética', 'estetica', '✨', 'Facial, manicure y cuidado personal', true, 2)
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Barbería', 'barberia', '💈', 'Cortes, barba y estilos masculinos', true, 0),
+  ('b2c3d4e5-f6a7-8901-bcde-f12345678901', 'Peluquería', 'peluqueria', '💇', 'Cortes, tintes y tratamientos capilares', true, 1),
+  ('c3d4e5f6-a7b8-9012-cdef-123456789012', 'Estética', 'estetica', '✨', 'Facial, manicure y cuidado personal', true, 2)
 ON CONFLICT DO NOTHING;
 
 -- Services
 INSERT INTO services (name, description, price, duration, category_id, active) VALUES
-  ('Corte Clásico', 'Corte de cabello tradicional con tijera y máquina. Incluye lavado y peinado final.', 300, 30, 'cat-1', true),
-  ('Corte + Diseño', 'Corte personalizado con diseño artístico. Incluye consulta de estilo.', 500, 45, 'cat-1', true),
-  ('Barba Completa', 'Perfilado, afeitado con navaja y aplicación de aceites esenciales.', 200, 25, 'cat-1', true),
-  ('Tinte Global', 'Coloración completa del cabello con productos de alta calidad.', 800, 90, 'cat-2', true),
-  ('Peinado Especial', 'Peinado para eventos especiales: bodas, quinceañeras, graduaciones.', 600, 60, 'cat-2', true),
-  ('Tratamiento Capilar', 'Hidratación profunda, reconstrucción y nutrición del cabello.', 450, 45, 'cat-2', true),
-  ('Limpieza Facial', 'Limpieza profunda con extracción, tónico y mascarilla hidratante.', 500, 50, 'cat-3', true),
-  ('Manicure + Pedicure', 'Cuidado completo de manos y pies. Incluye esmaltado.', 400, 60, 'cat-3', true)
+  ('Corte Clásico', 'Corte de cabello tradicional con tijera y máquina. Incluye lavado y peinado final.', 300, 30, 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', true),
+  ('Corte + Diseño', 'Corte personalizado con diseño artístico. Incluye consulta de estilo.', 500, 45, 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', true),
+  ('Barba Completa', 'Perfilado, afeitado con navaja y aplicación de aceites esenciales.', 200, 25, 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', true),
+  ('Tinte Global', 'Coloración completa del cabello con productos de alta calidad.', 800, 90, 'b2c3d4e5-f6a7-8901-bcde-f12345678901', true),
+  ('Peinado Especial', 'Peinado para eventos especiales: bodas, quinceañeras, graduaciones.', 600, 60, 'b2c3d4e5-f6a7-8901-bcde-f12345678901', true),
+  ('Tratamiento Capilar', 'Hidratación profunda, reconstrucción y nutrición del cabello.', 450, 45, 'b2c3d4e5-f6a7-8901-bcde-f12345678901', true),
+  ('Limpieza Facial', 'Limpieza profunda con extracción, tónico y mascarilla hidratante.', 500, 50, 'c3d4e5f6-a7b8-9012-cdef-123456789012', true),
+  ('Manicure + Pedicure', 'Cuidado completo de manos y pies. Incluye esmaltado.', 400, 60, 'c3d4e5f6-a7b8-9012-cdef-123456789012', true)
 ON CONFLICT DO NOTHING;

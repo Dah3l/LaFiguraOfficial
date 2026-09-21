@@ -28,14 +28,14 @@ export function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white/90 text-xs font-medium mb-4">
-              <Sparkles size={12} />
-              <span>Bienvenido a {businessInfo.name}</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3 font-serif">
-              Tu Estilo,<br />Nuestra Pasión
+            <h1 className="text-5xl sm:text-6xl font-bold text-white mb-2 font-serif tracking-tight">
+              {businessInfo.name}
             </h1>
-            <p className="text-white/80 text-sm sm:text-base max-w-sm mx-auto mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 text-white/90 text-sm font-medium mb-4">
+              <Sparkles size={14} />
+              <span>Tu Estilo, Nuestra Pasión</span>
+            </div>
+            <p className="text-white/80 text-sm sm:text-base max-w-sm mx-auto mb-6 leading-relaxed">
               {businessInfo.description}
             </p>
             <button

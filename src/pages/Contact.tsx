@@ -18,13 +18,24 @@ export function ContactPage() {
 
       {/* Map placeholder */}
       <div className="px-5 mb-6">
-        <div className="w-full h-48 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-gray-800">
-          <div className="text-center">
-            <MapPin size={32} className="text-violet-500 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{businessInfo.address}</p>
-            <p className="text-xs text-gray-500 mt-1">Alamar, La Habana, Cuba</p>
+        <a
+          href="https://maps.app.goo.gl/KUbqhpUJvgYAr9ev9"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full h-48 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-violet-300 dark:hover:border-violet-700 transition-colors overflow-hidden relative group"
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center">
+              <MapPin size={32} className="text-violet-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{businessInfo.address}</p>
+              <p className="text-xs text-gray-500 mt-1">Alamar, La Habana, Cuba</p>
+              <p className="text-xs text-violet-600 dark:text-violet-400 mt-2 font-medium flex items-center justify-center gap-1">
+                <MapPin size={12} />
+                Ver en Google Maps
+              </p>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
 
       {/* Info Cards */}

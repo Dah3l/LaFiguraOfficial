@@ -19,7 +19,7 @@ export function ContactPage() {
       {/* Map placeholder */}
       <div className="px-5 mb-6">
         <a
-          href="https://maps.app.goo.gl/KUbqhpUJvgYAr9ev9"
+          href="https://maps.app.goo.gl/epi8NfkSjmfJ5Lzi9"
           target="_blank"
           rel="noopener noreferrer"
           className="block w-full h-48 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-violet-300 dark:hover:border-violet-700 transition-colors overflow-hidden relative group"
